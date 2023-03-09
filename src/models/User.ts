@@ -81,17 +81,17 @@ const userSchema: Schema = new Schema<IUser>({
     type: String,
     required: [true, 'A user must have a password'],
     minlength: [8, 'A user password must have more or equal then 8 characters'],
-    select: false
-  },
-  confirmPassword: {
-    type: String,
-    required: [true, 'A user must confirm the password'],
     validate: {
       validator: function (password: string) {
         return !password.includes(' ');
       },
       message: 'The password must not contain whitespaces'
     },
+    select: false
+  },
+  confirmPassword: {
+    type: String,
+    required: [true, 'A user must confirm the password'],
     select: false
   }
 });
