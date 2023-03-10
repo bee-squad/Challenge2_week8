@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import validator from 'validator';
 import User, { IUser } from '../models/User';
 
-export const signUp = async (req: Request, res: Response): Promise<void> => {
+export async function signUp(req: Request, res: Response): Promise<void> {
   try {
     const user: IUser = req.body;
     const confirmPassword = req.body.confirmPassword || '';
@@ -30,4 +30,4 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
       message: (err as Error).message
     });
   }
-};
+}
