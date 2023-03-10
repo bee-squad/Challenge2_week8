@@ -1,12 +1,9 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { IUser } from '../models/User';
 import { Types } from 'mongoose';
 import dotenv from 'dotenv';
-
-export interface ReqWithUser extends Request {
-  user?: IUser;
-}
+import APIError from '../utils/APIError';
 
 dotenv.config({ path: '.env' });
 
@@ -28,15 +25,13 @@ export async function createSendToken(
     user.password = '';
     return res.status(statusCode).json({
       status: 'success',
-      token,
-      data: {
-        user
-      }
+      token
     });
   } catch (err: unknown) {
+    const error = new APIError('token', "Couldn't create the token");
     return res.status(400).json({
       status: 'fail',
-      err
+      errors: [error]
     });
   }
 }
