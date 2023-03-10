@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Model } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 
@@ -74,7 +74,22 @@ const userSchema: Schema = new Schema<IUser>({
     required: [true, 'A user must have an email'],
     unique: true,
     lowercase: true,
-    validate: [validator.isEmail, 'Please provide a valid email']
+    validate: [
+      {
+        validator: function (email: string) {
+          return validator.isEmail(email);
+        },
+        message: 'Please provide a valid email'
+      },
+      {
+        validator: async function (email: string) {
+          const User = this.constructor as Model<IUser>;
+          const user = await User.findOne({ email });
+          return !user;
+        },
+        message: 'This email address is already in use'
+      }
+    ]
   },
   password: {
     type: String,
