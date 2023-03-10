@@ -1,8 +1,8 @@
-import { Schema, model, Model } from 'mongoose';
+import { Schema, model, Model, Document } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 
-export interface IUser {
+export interface IUser extends Document {
   firstName: string;
   lastName: string;
   birthDate: Date;

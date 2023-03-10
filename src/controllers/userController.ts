@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { IUser } from '../models/User';
 import { signUpService } from '../services/userServices';
 import APIError from '../utils/APIError';
+import { createSendToken } from './authController';
 
 export async function signUp(req: Request, res: Response): Promise<Response> {
   const user: IUser = req.body;
@@ -10,13 +11,7 @@ export async function signUp(req: Request, res: Response): Promise<Response> {
   try {
     const newUser = await signUpService(user, confirmPassword);
 
-    newUser.password = '';
-    return res.status(201).json({
-      status: 'success',
-      data: {
-        user: newUser
-      }
-    });
+    return createSendToken(newUser, 201, res);
   } catch (err: unknown) {
     const errors =
       err instanceof Array<APIError> ? err : 'Something went wrong';
