@@ -10,7 +10,6 @@ export interface IUser {
   country: string;
   email: string;
   password: string;
-  confirmPassword: string | undefined;
 }
 
 const userSchema: Schema = new Schema<IUser>({
@@ -81,31 +80,25 @@ const userSchema: Schema = new Schema<IUser>({
     type: String,
     required: [true, 'A user must have a password'],
     minlength: [8, 'A user password must have more or equal then 8 characters'],
-    select: false
-  },
-  confirmPassword: {
-    type: String,
-    required: [true, 'A user must confirm the password'],
     validate: {
-      validator: function (this: IUser, el: string) {
-        return el === this.password;
+      validator: function (password: string) {
+        return !password.includes(' ');
       },
-      message: 'Passwords are not the same'
-    }
+      message: 'The password must not contain whitespaces'
+    },
+    select: false
   }
 });
 
 userSchema.pre('save', async function (this: IUser, next) {
   this.password = await bcrypt.hash(this.password, 12);
-  this.confirmPassword = undefined;
   next();
 });
 
 userSchema.methods.correctPassword = async function (
-  candidatePassword: string,
-  userPassword: string
+  candidatePassword: string
 ) {
-  return await bcrypt.compare(candidatePassword, userPassword);
+  return await bcrypt.compare(candidatePassword, this.password);
 };
 
 const User = model<IUser>('User', userSchema);
