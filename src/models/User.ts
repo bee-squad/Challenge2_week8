@@ -10,7 +10,6 @@ export interface IUser {
   country: string;
   email: string;
   password: string;
-  confirmPassword: string | undefined;
 }
 
 const userSchema: Schema = new Schema<IUser>({
@@ -88,17 +87,11 @@ const userSchema: Schema = new Schema<IUser>({
       message: 'The password must not contain whitespaces'
     },
     select: false
-  },
-  confirmPassword: {
-    type: String,
-    required: [true, 'A user must confirm the password'],
-    select: false
   }
 });
 
 userSchema.pre('save', async function (this: IUser, next) {
   this.password = await bcrypt.hash(this.password, 12);
-  this.confirmPassword = undefined;
   next();
 });
 
