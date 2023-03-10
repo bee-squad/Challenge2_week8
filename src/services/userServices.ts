@@ -17,10 +17,6 @@ export async function signUpService(user: IUser, confirmPassword: string) {
     errors.push(new APIError('confirmPassword', 'Passwords are not the same'));
   }
 
-  if (await User.find({ email: user.email })) {
-    errors.push(new APIError('email', 'This email address is already in use'));
-  }
-
   try {
     await newUser.save();
   } catch (err: unknown) {
@@ -28,6 +24,7 @@ export async function signUpService(user: IUser, confirmPassword: string) {
       const error = err as Error.ValidationError;
       errors.push(...APIError.fromValidationError(error));
     } else {
+      console.log(Object.getPrototypeOf(err));
       throw err;
     }
   }
