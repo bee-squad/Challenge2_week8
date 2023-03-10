@@ -1,5 +1,5 @@
 import express from 'express';
-import { Router, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import cors from 'cors';
 import connectMongo from './database/connect';
 import userRoutes from './routes/userRoutes';
