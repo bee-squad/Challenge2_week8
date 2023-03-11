@@ -10,6 +10,7 @@ export interface IUser extends Document {
   country: string;
   email: string;
   password: string;
+  correctPassword(candidatePassword: string): Promise<boolean>;
 }
 
 const userSchema: Schema = new Schema<IUser>({

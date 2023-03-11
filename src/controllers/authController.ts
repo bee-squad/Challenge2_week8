@@ -20,6 +20,8 @@ const signToken = (id: Types.ObjectId) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN
     });
+  } else {
+    throw new Error('JWT_SECRET not defined');
   }
 };
 
@@ -30,7 +32,6 @@ export async function createSendToken(
 ): Promise<Response> {
   try {
     const token = signToken(user._id);
-    user.password = '';
     return res.status(statusCode).json({
       status: 'success',
       token
