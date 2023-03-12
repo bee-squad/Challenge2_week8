@@ -1,9 +1,10 @@
-import express, { Router } from 'express'
-import { protect } from '../controllers/authController'
-import { getAllEvents } from '../controllers/eventController'
+import express, { Router } from 'express';
+import { protect } from '../controllers/authController';
+import { getAllEvents, createEvent } from '../controllers/eventController';
 
-const router: Router = express.Router()
+const router: Router = express.Router();
 
-router.get('/', protect, getAllEvents)
+router.post('/', protect, createEvent);
+router.get('/', protect, getAllEvents);
 
-export default router
+export default router;
