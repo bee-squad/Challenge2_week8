@@ -67,3 +67,34 @@ export async function createEvent(req: Request, res: Response) {
         }
     }
 }
+
+export async function deleteEventByWeekday(req: Request, res: Response) {
+    try {
+        const { weekday } = req.params;
+        const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+        const events = await Event.find();
+        const filteredEvents = events.filter(
+            (event) => event.dateTime.getDay() === weekdays.indexOf(weekday)
+        );
+
+        if (filteredEvents.length === 0) {
+            return res.status(404).json({
+                status: 'fail',
+                message: `No events found on ${weekday}`,
+            });
+        }
+
+        for (const event of filteredEvents) {
+            await Event.deleteOne({ _id: event._id });
+        }
+
+        res.status(204).json({
+            status: 'success',
+            data: null,
+        });
+    } catch (err: unknown) {
+        const apiError = new APIError('Cannot find events', '404')
+        return res.status(400).json(apiError)
+    }
+}
