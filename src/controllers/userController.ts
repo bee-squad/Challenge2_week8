@@ -3,7 +3,7 @@ import validator from 'validator';
 import User, { IUser } from '../models/User';
 import { signUpService } from '../services/userServices';
 import APIError from '../utils/APIError';
-import { createSendToken } from './authController';
+import { createSendToken, ReqWithUser } from './authController';
 
 export async function signUp(req: Request, res: Response): Promise<Response> {
   const user: IUser = req.body;
@@ -52,6 +52,22 @@ export async function signIn(req: Request, res: Response): Promise<Response> {
     status: 'fail',
     errors: [new APIError('auth', 'Email or password incorrect')]
   });
+}
+
+export async function deleteUser(
+  req: ReqWithUser,
+  res: Response
+): Promise<Response> {
+  try {
+    await User.findByIdAndDelete(req.user?.id);
+    return res.status(204).json({
+      status: 'success',
+      data: null
+    });
+  } catch (err: unknown) {
+    const error = new APIError('Cannot delete User', '404');
+    return res.status(404).json(error);
+  }
 }
 
 // Route to test Auth Middleware, REMOVE IT later
