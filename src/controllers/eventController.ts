@@ -14,8 +14,30 @@ export async function getAllEvents(req: Request, res: Response) {
             }
         })
     } catch (err: unknown) {
-        console.error(err)
         const apiError = new APIError('Cannot find events', '404')
+        res.status(404).json(apiError)
+    }
+}
+
+export async function getEventById(req: Request, res: Response) {
+    try {
+        const eventId = req.params.id
+        const event = await Event.findById(eventId)
+    if(event) {
+        return res.status(200).json({
+            status: 'Success',
+            data: {
+                data: event
+            }
+        })
+    } else {
+        return res.status(404).json({
+            status: 'Error',
+            message: 'Fail to find event'
+        })
+    }   
+    } catch (err: unknown) {
+        const apiError = new APIError('Cannot find event', '404')
         res.status(404).json(apiError)
     }
 }
