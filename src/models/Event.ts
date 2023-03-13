@@ -3,7 +3,7 @@ import { Schema, model } from 'mongoose';
 export interface IEvent {
   description: string;
   dateTime: Date;
-  createdAt: Date;
+  createdAt?: Date;
 }
 
 const eventSchema: Schema = new Schema<IEvent>({
