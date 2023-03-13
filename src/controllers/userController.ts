@@ -92,8 +92,27 @@ export async function updateUser(
       message: 'Passwords must be updated on updatePassword endpoint'
     });
   } catch (err: unknown) {
-    const error = new APIError('Cannot update User data', '404');
-    return res.status(404).json(error);
+    if (APIError.errorMessage(err)) {
+      if (
+        err.message ===
+        'Validation failed: email: User.findOne is not a function'
+      ) {
+        return res.status(400).json({
+          status: 'fail',
+          message:
+            'Validation failed: email: A user with this email address already exists'
+        });
+      }
+      return res.status(400).json({
+        status: 'fail',
+        message: err.message
+      });
+    } else {
+      return res.status(400).json({
+        status: 'fail',
+        message: err
+      });
+    }
   }
 }
 
