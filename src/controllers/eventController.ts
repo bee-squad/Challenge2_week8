@@ -85,8 +85,7 @@ export async function createEvent(req: Request, res: Response) {
 
     const newEvent: IEvent = {
       description,
-      dateTime,
-      createdAt: new Date()
+      dateTime
     };
 
     const event = await Event.create(newEvent);
