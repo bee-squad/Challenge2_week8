@@ -70,6 +70,52 @@ export async function deleteUser(
   }
 }
 
+export async function updateUser(
+  req: ReqWithUser,
+  res: Response
+): Promise<Response> {
+  try {
+    if (!req.body.password) {
+      const user = await User.findByIdAndUpdate(req.user?.id, req.body, {
+        new: true,
+        runValidators: true
+      });
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          data: user
+        }
+      });
+    }
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Passwords must be updated on updatePassword endpoint'
+    });
+  } catch (err: unknown) {
+    if (APIError.errorMessage(err)) {
+      if (
+        err.message ===
+        'Validation failed: email: User.findOne is not a function'
+      ) {
+        return res.status(400).json({
+          status: 'fail',
+          message:
+            'Validation failed: email: A user with this email address already exists'
+        });
+      }
+      return res.status(400).json({
+        status: 'fail',
+        message: err.message
+      });
+    } else {
+      return res.status(400).json({
+        status: 'fail',
+        message: err
+      });
+    }
+  }
+}
+
 // Route to test Auth Middleware, REMOVE IT later
 export const getAllUsers = async (req: Request, res: Response) => {
   try {

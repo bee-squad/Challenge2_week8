@@ -48,27 +48,15 @@ const userSchema: Schema = new Schema<IUser>({
     type: String,
     required: [true, 'A user must register a city'],
     trim: true,
-    minlength: [
-      4,
-      'A user last name must have more or equal then 4 characters'
-    ],
-    maxlength: [
-      40,
-      'A user last name must have less or equal then 40 characters'
-    ]
+    minlength: [3, 'A city must have more or equal then 3 characters'],
+    maxlength: [40, 'A city must have less or equal then 40 characters']
   },
   country: {
     type: String,
     required: [true, 'A user must register a country'],
     trim: true,
-    minlength: [
-      4,
-      'A user last name must have more or equal then 4 characters'
-    ],
-    maxlength: [
-      40,
-      'A user last name must have less or equal then 40 characters'
-    ]
+    minlength: [3, 'A country must have more or equal then 3 characters'],
+    maxlength: [40, 'A country must have less or equal then 40 characters']
   },
   email: {
     type: String,
@@ -107,6 +95,7 @@ const userSchema: Schema = new Schema<IUser>({
 });
 
 userSchema.pre('save', async function (this: IUser, next) {
+  if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });

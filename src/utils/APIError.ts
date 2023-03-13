@@ -13,4 +13,12 @@ export default class APIError {
       (error) => new APIError(error.path, error.message)
     );
   }
+
+  static errorMessage = (err: unknown): err is { message: string } => {
+    if (err && typeof err === 'object' && 'message' in err) {
+      return true;
+    } else {
+      return false;
+    }
+  };
 }
