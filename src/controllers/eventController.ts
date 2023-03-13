@@ -19,7 +19,7 @@ export async function getEvents(
       'Saturday'
     ];
 
-    const events = await Event.find().select('-__v');
+    const events = await Event.find();
     if (id) {
       if (!isValidObjectId(id)) {
         return res.status(404).json({
@@ -27,10 +27,16 @@ export async function getEvents(
           message: 'Invalid ID'
         });
       }
-      const event = await Event.findById(id).select('-__v');
+      const event = await Event.findById(id);
       if (event) {
+        const eventWithWeekday = {
+          ...event.toObject(),
+          weekday: new Date(event.dateTime).toLocaleDateString('en-US', {
+            weekday: 'long'
+          })
+        };
         return res.status(200).json({
-          event
+          event: eventWithWeekday
         });
       } else {
         return res.status(404).json({
@@ -44,10 +50,17 @@ export async function getEvents(
           message: 'Invalid weekday'
         });
       }
-      const filteredEvents = events.filter(
-        (event) =>
-          event.dateTime.getDay() === weekdays.indexOf(weekday as string)
-      );
+      const filteredEvents = events
+        .filter(
+          (event) =>
+            event.dateTime.getDay() === weekdays.indexOf(weekday as string)
+        )
+        .map((event) => ({
+          ...event.toObject(),
+          weekday: new Date(event.dateTime).toLocaleDateString('en-US', {
+            weekday: 'long'
+          })
+        }));
 
       if (filteredEvents.length === 0) {
         return res.status(404).json({
@@ -59,8 +72,14 @@ export async function getEvents(
         filteredEvents
       });
     } else {
+      const eventsWithWeekday = events.map((event) => ({
+        ...event.toObject(),
+        weekday: new Date(event.dateTime).toLocaleDateString('en-US', {
+          weekday: 'long'
+        })
+      }));
       return res.status(200).json({
-        events
+        events: eventsWithWeekday
       });
     }
   } catch (err: unknown) {
