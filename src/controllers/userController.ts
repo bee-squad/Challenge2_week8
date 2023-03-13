@@ -65,7 +65,7 @@ export async function deleteUser(
       data: null
     });
   } catch (err: unknown) {
-    const error = new APIError('Cannot delete User', '404');
+    const error = new APIError(undefined, 'Cannot delete User');
     return res.status(404).json(error);
   }
 }
@@ -89,7 +89,12 @@ export async function updateUser(
     }
     return res.status(400).json({
       status: 'fail',
-      message: 'Passwords must be updated on updatePassword endpoint'
+      errors: [
+        new APIError(
+          'password',
+          'Passwords must be updated on updatePassword endpoint'
+        )
+      ]
     });
   } catch (err: unknown) {
     if (APIError.errorMessage(err)) {
@@ -99,18 +104,24 @@ export async function updateUser(
       ) {
         return res.status(400).json({
           status: 'fail',
-          message:
-            'Validation failed: email: A user with this email address already exists'
+          errors: [
+            new APIError(
+              'email',
+              'A user with this email address already exists'
+            )
+          ]
         });
       }
       return res.status(400).json({
         status: 'fail',
-        message: err.message
+        errors: [
+          err instanceof APIError ? err : new APIError(undefined, err.message)
+        ]
       });
     } else {
       return res.status(400).json({
         status: 'fail',
-        message: err
+        errors: 'Something went wrong'
       });
     }
   }

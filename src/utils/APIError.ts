@@ -14,11 +14,11 @@ export default class APIError {
     );
   }
 
-  static errorMessage = (err: unknown): err is { message: string } => {
+  static errorMessage(err: unknown): err is { message: string } {
     if (err && typeof err === 'object' && 'message' in err) {
       return true;
     } else {
       return false;
     }
-  };
+  }
 }
