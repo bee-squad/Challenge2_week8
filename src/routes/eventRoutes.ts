@@ -3,7 +3,7 @@ import { protect } from '../controllers/authController';
 import {
   getEvents,
   createEvent,
-  deleteEventByWeekday
+  deleteEvents
 } from '../controllers/eventController';
 
 const router: Router = express.Router();
@@ -12,6 +12,6 @@ router
   .route('/')
   .get(protect, getEvents)
   .post(protect, createEvent)
-  .delete(protect, deleteEventByWeekday);
+  .delete(protect, deleteEvents);
 
 export default router;
