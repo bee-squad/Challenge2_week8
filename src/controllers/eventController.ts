@@ -20,6 +20,55 @@ export async function getAllEvents(req: Request, res: Response) {
     }
 }
 
+export async function getEventsByWeekday(req: Request, res: Response) {
+    try {
+        const weekday = req.query.weekday as string;
+        const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+        if (!weekdays.includes(weekday)) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'Invalid weekday',
+            });
+        }
+
+        const events = await Event.find({ 'dateTime.dayOfWeek': weekday });
+
+        if (events.length === 0) {
+            return res.status(404).json({
+                status: 'fail',
+                message: `No events found on ${weekday}`,
+            });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            results: events.length,
+            data: {
+                data: events,
+            },
+        });
+    } catch (err) {
+        if (err instanceof mongoose.Error.ValidationError) {
+            const errors = Object.values(err.errors).map((error) => error.message);
+            return res.status(400).json({
+                status: 'fail',
+                errors,
+            });
+        } else if (err instanceof APIError) {
+            return res.status(400).json({
+                status: 'fail',
+                errors: [err.message],
+            });
+        } else {
+            return res.status(500).json({
+                status: 'error',
+                message: 'Something went wrong',
+            });
+        }
+    }
+}
+
 export async function createEvent(req: Request, res: Response) {
     try {
         const { description, dateTime } = req.body;
