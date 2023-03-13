@@ -1,0 +1,8 @@
+# Dependencies
+node_modules/
+
+# Compiled code
+dist/
+
+# Enviroment Variables
+.env
