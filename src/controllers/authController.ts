@@ -63,8 +63,11 @@ export const protect = async (
     if (!token) {
       return next(
         res.status(401).json({
-          satatus: 'fail',
-          message: 'You are not logged in. Please log in to get access'
+          status: 'fail',
+          errors: new APIError(
+            'auth',
+            'You are not logged in. Please log in to get access'
+          )
         })
       );
     }
@@ -81,7 +84,10 @@ export const protect = async (
       return next(
         res.status(401).json({
           satatus: 'fail',
-          message: 'The user belonging to this token does no longer exist.'
+          errors: new APIError(
+            'auth',
+            'The user belonging to this token does no longer exist.'
+          )
         })
       );
     }
@@ -91,7 +97,7 @@ export const protect = async (
   } catch (err) {
     res.status(401).json({
       status: 'fail',
-      message: 'You need to be logged in to get access'
+      errors: new APIError('auth', 'You need to be logged in to get access')
     });
   }
 };

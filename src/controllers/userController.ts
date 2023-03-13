@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
-import validator from 'validator';
 import User, { IUser } from '../models/User';
-import { signUpService } from '../services/userServices';
+import {
+  signInService,
+  signUpService,
+  updateUserService
+} from '../services/userServices';
 import APIError from '../utils/APIError';
 import { createSendToken, ReqWithUser } from './authController';
 
@@ -25,33 +28,18 @@ export async function signUp(req: Request, res: Response): Promise<Response> {
 
 export async function signIn(req: Request, res: Response): Promise<Response> {
   const { email, password } = req.body;
-  const user = await User.findOne({ email }).select('+password');
-  const errors: APIError[] = [];
 
-  if (!email || validator.isEmpty(email, { ignore_whitespace: true }))
-    errors.push(new APIError('email', 'Email required'));
-
-  if (!password || validator.isEmpty(password, { ignore_whitespace: true }))
-    errors.push(new APIError('password', 'Password required'));
-
-  if (errors.length > 0) {
+  try {
+    const user = await signInService(email, password);
+    return createSendToken(user, 200, res);
+  } catch (err) {
+    const errors =
+      err instanceof Array<APIError> ? err : 'Something went wrong';
     return res.status(401).json({
       status: 'fail',
       errors
     });
   }
-
-  if (user) {
-    const correctPassword = await user.correctPassword(password);
-    if (correctPassword) {
-      return createSendToken(user, 200, res);
-    }
-  }
-
-  return res.status(401).json({
-    status: 'fail',
-    errors: [new APIError('auth', 'Email or password incorrect')]
-  });
 }
 
 export async function deleteUser(
@@ -61,12 +49,11 @@ export async function deleteUser(
   try {
     await User.findByIdAndDelete(req.user?.id);
     return res.status(204).json({
-      status: 'success',
-      data: null
+      status: 'success'
     });
   } catch (err: unknown) {
-    const error = new APIError(undefined, 'Cannot delete User');
-    return res.status(404).json(error);
+    const errors = new APIError(undefined, 'Cannot delete User');
+    return res.status(404).json({ status: 'fail', errors });
   }
 }
 
@@ -76,10 +63,7 @@ export async function updateUser(
 ): Promise<Response> {
   try {
     if (!req.body.password) {
-      const user = await User.findByIdAndUpdate(req.user?.id, req.body, {
-        new: true,
-        runValidators: true
-      });
+      const user = await updateUserService(req.user?.id, req.body);
       return res.status(200).json({
         status: 'success',
         data: {
@@ -97,33 +81,10 @@ export async function updateUser(
       ]
     });
   } catch (err: unknown) {
-    if (APIError.errorMessage(err)) {
-      if (
-        err.message ===
-        'Validation failed: email: User.findOne is not a function'
-      ) {
-        return res.status(400).json({
-          status: 'fail',
-          errors: [
-            new APIError(
-              'email',
-              'A user with this email address already exists'
-            )
-          ]
-        });
-      }
-      return res.status(400).json({
-        status: 'fail',
-        errors: [
-          err instanceof APIError ? err : new APIError(undefined, err.message)
-        ]
-      });
-    } else {
-      return res.status(400).json({
-        status: 'fail',
-        errors: 'Something went wrong'
-      });
-    }
+    return res.status(400).json({
+      status: 'fail',
+      errors: [err instanceof Array<APIError> ? err : 'Something went wrong']
+    });
   }
 }
 
