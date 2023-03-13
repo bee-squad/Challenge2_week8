@@ -4,7 +4,8 @@ import {
   getAllUsers,
   signIn,
   deleteUser,
-  updateUser
+  updateUser,
+  updatePassword
 } from '../controllers/userController';
 import { protect } from '../controllers/authController';
 
@@ -14,6 +15,7 @@ router.post('/signUp', signUp);
 router.post('/signIn', signIn);
 router.delete('/', protect, deleteUser);
 router.patch('/', protect, updateUser);
+router.patch('/updatePassword', protect, updatePassword);
 
 // Test Auth Middleware (protect)
 router.get('/', protect, getAllUsers);
