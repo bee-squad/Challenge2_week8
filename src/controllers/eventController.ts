@@ -19,7 +19,7 @@ export async function getEvents(
       'Saturday'
     ];
 
-    const events = await Event.find();
+    const events = await Event.find().select('-__v');
     if (id) {
       if (!isValidObjectId(id)) {
         return res.status(404).json({
@@ -27,7 +27,7 @@ export async function getEvents(
           message: 'Invalid ID'
         });
       }
-      const event = await Event.findById(id);
+      const event = await Event.findById(id).select('-__v');
       if (event) {
         return res.status(200).json({
           event
