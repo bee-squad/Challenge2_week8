@@ -18,7 +18,11 @@ export async function signUpService(user: IUser, confirmPassword: string) {
   }
 
   try {
-    await newUser.save();
+    if (errors.length > 0) {
+      await newUser.validate();
+    } else {
+      await newUser.save();
+    }
   } catch (err: unknown) {
     if (err instanceof Error.ValidationError) {
       const error = err as Error.ValidationError;
