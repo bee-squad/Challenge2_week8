@@ -7,6 +7,7 @@ const router: Router = express.Router();
 router
   .route('/')
   .get(protect, getAllEvents)
+  .get(protect, getEventsByWeekday)
   .post(protect, createEvent)
   .delete(protect, deleteEventByWeekday);
 
