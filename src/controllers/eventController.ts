@@ -118,9 +118,9 @@ export async function createEvent(req: Request, res: Response) {
   }
 }
 
-export async function deleteEventByWeekday(req: Request, res: Response) {
+export async function deleteEvents(req: Request, res: Response) {
   try {
-    const { weekday } = req.query;
+    const { weekday, id } = req.query;
     const weekdays = [
       'Sunday',
       'Monday',
@@ -132,27 +132,54 @@ export async function deleteEventByWeekday(req: Request, res: Response) {
     ];
 
     const events = await Event.find();
-    const filteredEvents = events.filter(
-      (event) => event.dateTime.getDay() === weekdays.indexOf(weekday as string)
-    );
+    if (weekday) {
+      const filteredEvents = events.filter(
+        (event) =>
+          event.dateTime.getDay() === weekdays.indexOf(weekday as string)
+      );
 
-    if (filteredEvents.length === 0) {
+      if (filteredEvents.length === 0) {
+        return res.status(404).json({
+          status: 'fail',
+          message: `No events found on ${weekday}`
+        });
+      }
+
+      for (const event of filteredEvents) {
+        await Event.deleteOne({ _id: event._id });
+      }
+
+      res.status(204).json({
+        status: 'success',
+        data: null
+      });
+    } else if (id) {
+      if (!isValidObjectId(id)) {
+        return res.status(404).json({
+          status: 'fail',
+          message: 'Invalid ID'
+        });
+      }
+      const event = await Event.findByIdAndDelete(id);
+      if (event) {
+        return res.status(204).json({
+          status: 'success',
+          data: null
+        });
+      } else {
+        return res.status(404).json({
+          status: 'fail',
+          message: 'Event not found'
+        });
+      }
+    } else {
       return res.status(404).json({
         status: 'fail',
-        message: `No events found on ${weekday}`
+        message: 'Wrong query params for deletion'
       });
     }
-
-    for (const event of filteredEvents) {
-      await Event.deleteOne({ _id: event._id });
-    }
-
-    res.status(204).json({
-      status: 'success',
-      data: null
-    });
   } catch (err: unknown) {
-    const apiError = new APIError('Cannot find events', '404');
+    const apiError = new APIError('Could not delete events', '404');
     return res.status(400).json(apiError);
   }
 }
