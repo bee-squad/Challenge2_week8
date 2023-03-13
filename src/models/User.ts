@@ -72,7 +72,6 @@ const userSchema: Schema = new Schema<IUser>({
       },
       {
         validator: async function (email: string) {
-          const User = this.constructor as Model<IUser>;
           const user = await User.findOne({ email });
           return !user;
         },
