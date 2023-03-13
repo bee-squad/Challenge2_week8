@@ -70,12 +70,12 @@ export async function createEvent(req: Request, res: Response) {
 
 export async function deleteEventByWeekday(req: Request, res: Response) {
     try {
-        const { weekday } = req.params;
+        const { weekday } = req.query;
         const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
         const events = await Event.find();
         const filteredEvents = events.filter(
-            (event) => event.dateTime.getDay() === weekdays.indexOf(weekday)
+            (event) => event.dateTime.getDay() === weekdays.indexOf(weekday as string)
         );
 
         if (filteredEvents.length === 0) {
