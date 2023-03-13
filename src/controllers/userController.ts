@@ -3,6 +3,7 @@ import User, { IUser } from '../models/User';
 import {
   signInService,
   signUpService,
+  updatePasswordService,
   updateUserService
 } from '../services/userServices';
 import APIError from '../utils/APIError';
@@ -81,6 +82,29 @@ export async function updateUser(
       ]
     });
   } catch (err: unknown) {
+    return res.status(400).json({
+      status: 'fail',
+      errors: [err instanceof Array<APIError> ? err : 'Something went wrong']
+    });
+  }
+}
+
+export async function updatePassword(
+  req: ReqWithUser,
+  res: Response
+): Promise<Response> {
+  try {
+    await updatePasswordService(
+      req.user?.id,
+      req.body.password || '',
+      req.body.newPassword || '',
+      req.body.confirmPassword || ''
+    );
+    return res.status(200).json({
+      status: 'success'
+    });
+  } catch (err: unknown) {
+    console.log(err);
     return res.status(400).json({
       status: 'fail',
       errors: [err instanceof Array<APIError> ? err : 'Something went wrong']

@@ -2,8 +2,8 @@ import { Error } from 'mongoose';
 
 export default class APIError {
   constructor(
-    readonly path: string | undefined,
-    readonly message: string | undefined
+    public path: string | undefined,
+    public message: string | undefined
   ) {}
 
   static fromValidationError(

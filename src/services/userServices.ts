@@ -82,3 +82,59 @@ export async function updateUserService(
     }
   }
 }
+
+export async function updatePasswordService(
+  userId: Types.ObjectId,
+  currentPassword: string,
+  newPassword: string,
+  confirmPassword: string
+) {
+  const errors: APIError[] = [];
+  const user = await User.findById(userId).select('+password');
+
+  if (user === null) throw new Error('Null user');
+
+  if (validator.isEmpty(currentPassword, { ignore_whitespace: true })) {
+    errors.push(new APIError('password', 'Current password required'));
+  } else {
+    const correctPassword = await user.correctPassword(currentPassword);
+
+    if (!correctPassword)
+      errors.push(new APIError('password', 'Incorrect password'));
+  }
+
+  if (validator.isEmpty(confirmPassword, { ignore_whitespace: true })) {
+    errors.push(
+      new APIError('confirmPassoword', 'A user must confirm the password')
+    );
+  } else if (newPassword !== confirmPassword) {
+    errors.push(new APIError('confirmPassword', 'Passwords are not the same'));
+  }
+
+  try {
+    user.password = newPassword;
+    if (errors.length > 0) {
+      await user.validate(['password']);
+    } else {
+      user.$markValid('email');
+      await user.save({ validateModifiedOnly: true });
+    }
+  } catch (err) {
+    if (err instanceof Error.ValidationError) {
+      const error = APIError.fromValidationError(err);
+      const passwordErrorIndex = error.findIndex(
+        (err) => err.path === 'password'
+      );
+      if (passwordErrorIndex >= 0)
+        error[passwordErrorIndex].path = 'newPassword';
+      errors.push(...error);
+      throw errors;
+    } else {
+      throw err;
+    }
+  }
+
+  if (errors.length > 0) {
+    throw errors;
+  }
+}
