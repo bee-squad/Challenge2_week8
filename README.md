@@ -63,6 +63,8 @@ npm start
 For all routes, use this address: 127.0.0.1:PORT (3000 in our example) before. For example to get all events you have to
 do a get request like this: 127.0.0.1:3000/api/v1/events.
 
+In routes that AUTH is needed, use the Bearer Token for Authorization in the Header. You can get the token after a Sign In or Sign Up.
+
 ## GET Routes
 
 #### Return all Events (Needs AUTH)
