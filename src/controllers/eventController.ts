@@ -151,10 +151,11 @@ export async function deleteEvents(req: Request, res: Response) {
 
     const events = await Event.find();
     if (weekday) {
-      const filteredEvents = events.filter(
-        (event) =>
-          event.dateTime.getDay() === weekdays.indexOf(weekday as string)
-      );
+      const filteredEvents = events.filter((event) => {
+        const eventWeekday = weekdays[event.dateTime.getDay()].toLowerCase();
+        const queryWeekday = (weekday as string).toLowerCase();
+        return eventWeekday === queryWeekday;
+      });
 
       if (filteredEvents.length === 0) {
         return res.status(404).json({
