@@ -141,7 +141,7 @@ export async function deleteEvents(req: Request, res: Response) {
       if (filteredEvents.length === 0) {
         return res.status(404).json({
           status: 'fail',
-          message: `No events found on ${weekday}`
+          errors: [new APIError('weekday', `No events found on ${weekday}`)]
         });
       }
 
@@ -157,7 +157,7 @@ export async function deleteEvents(req: Request, res: Response) {
       if (!isValidObjectId(id)) {
         return res.status(404).json({
           status: 'fail',
-          message: 'Invalid ID'
+          errors: [new APIError('id', `Invalid ID`)]
         });
       }
       const event = await Event.findByIdAndDelete(id);
@@ -169,17 +169,22 @@ export async function deleteEvents(req: Request, res: Response) {
       } else {
         return res.status(404).json({
           status: 'fail',
-          message: 'Event not found'
+          errors: [new APIError('event', `Event not found`)]
         });
       }
     } else {
       return res.status(404).json({
         status: 'fail',
-        message: 'Wrong query params for deletion'
+        errors: [
+          new APIError('query params', 'Wrong query params for deletion')
+        ]
       });
     }
   } catch (err: unknown) {
-    const apiError = new APIError('Could not delete events', '404');
-    return res.status(400).json(apiError);
+    const apiError = new APIError('events', 'Could not delete events');
+    return res.status(400).json({
+      status: 'fail',
+      message: apiError
+    });
   }
 }
